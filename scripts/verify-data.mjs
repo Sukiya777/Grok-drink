@@ -61,6 +61,9 @@ const gt = matchByPantry(["金酒", "汤力水"]).find((m) => m.cocktail.id === 
 ok(gt && gt.missing.length === 0, "金酒+汤力水 应能调金汤力");
 const neg = matchByPantry(["金酒", "汤力水"]).find((m) => m.cocktail.id === "negroni");
 ok(neg.missing.length === 2, `内格罗尼应缺 2 样，实际 ${neg.missing.length}`);
+// 苦精不进缺口：勾选其余材料后，古典鸡尾酒应“现在就能调”
+const of = matchByPantry(["波本威士忌", "糖浆（1:1）"]).find((m) => m.cocktail.id === "old-fashioned");
+ok(of && of.missing.length === 0, `古典鸡尾酒不应因苦精计缺，实际缺 ${of?.missing.join("、") || 0} 样`);
 
 // 7. 库存清单里不该混进调料/装饰
 for (const bad of ["盐", "伍斯特酱", "塔巴斯科", "安格斯特拉苦精"]) {

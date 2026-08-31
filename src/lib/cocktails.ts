@@ -1585,7 +1585,8 @@ export type MatchResult = {
 
 /**
  * 按库存筛酒：missing 为 0 表示现在就能调，为 1 表示只缺一样。
- * 可选配料不计入缺口，但会参与命中数统计以便排序。
+ * 可选配料与苦精/调味料（PANTRY_SKIP，吧台上没有对应勾选项）不计入缺口，
+ * 否则那些酒永远“差一样”、永远进不了“现在就能调”。
  */
 export function matchByPantry(
   stock: string[],
@@ -1595,7 +1596,12 @@ export function matchByPantry(
   return list
     .map((cocktail) => {
       const missing = cocktail.ingredients
-        .filter((i) => !i.optional && !have.has(normalizeIngredient(i.name)))
+        .filter(
+          (i) =>
+            !i.optional &&
+            !PANTRY_SKIP.has(normalizeIngredient(i.name)) &&
+            !have.has(normalizeIngredient(i.name)),
+        )
         .map((i) => i.name);
       return { cocktail, missing };
     })
