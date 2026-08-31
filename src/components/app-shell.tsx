@@ -32,6 +32,8 @@ import { CategoryIntro, CocktailList } from "@/components/cocktail-list";
 import { categoryCopy } from "@/lib/category-copy";
 import { PantryPanel } from "@/components/pantry-panel";
 import { RecipePanel } from "@/components/recipe-panel";
+import { Toaster } from "@/components/toaster";
+import { haptic } from "@/lib/haptics";
 import { Toolbar } from "@/components/toolbar";
 import { cn } from "@/lib/utils";
 
@@ -154,6 +156,7 @@ export function AppShell() {
   }, []);
 
   const toggleSave = useCallback((id: string) => {
+    haptic(12);
     setFavorites((prev) => {
       const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
       writeFavorites(next);
@@ -162,6 +165,7 @@ export function AppShell() {
   }, []);
 
   const toggleBarStock = useCallback((name: string) => {
+    haptic(10);
     setBarStock((prev) => {
       const next = prev.includes(name)
         ? prev.filter((x) => x !== name)
@@ -377,6 +381,7 @@ export function AppShell() {
           </aside>
         )}
       </div>
+      <Toaster />
     </div>
   );
 }

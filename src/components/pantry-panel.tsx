@@ -106,7 +106,7 @@ export function PantryPanel({ stock, onToggle, onClear, readyCount }: Props) {
                 )}
               >
                 {on ? (
-                  <Check className="size-3.5" strokeWidth={2.5} />
+                  <Check className="check-pop size-3.5" strokeWidth={2.5} />
                 ) : (
                   <Plus className="size-3.5 opacity-60" strokeWidth={2} />
                 )}

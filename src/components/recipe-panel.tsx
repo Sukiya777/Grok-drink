@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Check, Copy, Heart, Link2, Minus, Plus } from "lucide-react";
 import {
   GLASS_LABEL,
@@ -13,6 +13,8 @@ import {
 } from "@/lib/cocktails";
 import { Button } from "@/components/ui/button";
 import { GlassMark } from "@/components/glass-mark";
+import { haptic } from "@/lib/haptics";
+import { showToast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -41,13 +43,21 @@ export function RecipePanel({
 }: Props) {
   const [copied, setCopied] = useState<"recipe" | "link" | null>(null);
   const [done, setDone] = useState<boolean[]>([]);
+  const [pour, setPour] = useState(false);
+  const pourTimer = useRef<number | undefined>(undefined);
   const tint = categoryColor(cocktail.category);
   const missingSet = new Set((missing ?? []).map(normalizeIngredient));
+  const doneCount = done.filter(Boolean).length;
+  const stepTotal = cocktail.steps.length;
+  const progress = stepTotal > 0 ? doneCount / stepTotal : 0;
 
   useEffect(() => {
     setDone([]);
     setCopied(null);
+    setPour(false);
   }, [cocktail.id]);
+
+  useEffect(() => () => window.clearTimeout(pourTimer.current), []);
 
   useEffect(() => {
     if (!copied) return;
@@ -57,6 +67,8 @@ export function RecipePanel({
 
   function flash(kind: "recipe" | "link") {
     setCopied(kind);
+    haptic(14);
+    showToast(kind === "recipe" ? "配方已复制，发给朋友吧" : "链接已复制");
   }
 
   function copyText(text: string, kind: "recipe" | "link") {
@@ -80,9 +92,16 @@ export function RecipePanel({
     document.body.appendChild(ta);
     ta.select();
     try {
-      document.execCommand("copy");
-      flash(kind);
+      const worked = document.execCommand("copy");
+      if (worked) {
+        flash(kind);
+      } else {
+        throw new Error("execCommand returned false");
+      }
     } catch {
+      // 连兜底都失败：把手动复制的入口给出来，并明确告知，避免"点了没反应"
+      showToast("自动复制失败，已弹出内容请长按选中");
+      haptic([20, 40, 20]);
       window.prompt("复制以下内容：", text);
     } finally {
       ta.remove();
@@ -121,7 +140,14 @@ export function RecipePanel({
       className="recipe-in flex h-full min-h-0 flex-col bg-surface"
       id={`recipe-${cocktail.id}`}
     >
-      <header className="flex items-center justify-between gap-2 border-b border-line px-3 py-2">
+      <header className="relative flex items-center justify-between gap-2 border-b border-line px-3 py-2">
+        {doneCount > 0 ? (
+          <span
+            aria-hidden="true"
+            className="absolute bottom-0 left-0 h-px bg-ok transition-[width] duration-300 ease-out"
+            style={{ width: `${Math.round(progress * 100)}%` }}
+          />
+        ) : null}
         <Button variant="quiet" size="icon" onClick={onClose} aria-label="返回酒单">
           <ArrowLeft className="size-5" strokeWidth={1.75} />
         </Button>
@@ -188,7 +214,7 @@ export function RecipePanel({
           <GlassMark
             glass={cocktail.glass}
             liquid={tint}
-            className="mt-1 h-16 w-12 shrink-0"
+            className={cn("mt-1 h-16 w-12 shrink-0", pour && "glass-pour")}
           />
         </div>
 
@@ -290,7 +316,10 @@ export function RecipePanel({
           {done.filter(Boolean).length > 0 ? (
             <button
               type="button"
-              onClick={() => setDone([])}
+              onClick={() => {
+                setDone([]);
+                setPour(false);
+              }}
               className="text-xs text-subtle hover:text-fg"
             >
               重置进度
@@ -308,6 +337,19 @@ export function RecipePanel({
                     setDone((prev) => {
                       const next = [...prev];
                       next[i] = !next[i];
+                      const count = next.filter(Boolean).length;
+                      if (next[i]) {
+                        haptic(10);
+                        if (count === cocktail.steps.length) {
+                          // 全部完成：倒酒动画 + 轻震两下 + 小纸条
+                          setPour(false);
+                          window.clearTimeout(pourTimer.current);
+                          requestAnimationFrame(() => setPour(true));
+                          pourTimer.current = window.setTimeout(() => setPour(false), 1000);
+                          haptic([16, 60, 24]);
+                          showToast(`🍸 ${cocktail.name}，这杯成了`);
+                        }
+                      }
                       return next;
                     })
                   }

@@ -344,6 +344,46 @@ input:focus-visible {
   }
 }
 
+.check-pop {
+  animation: check-pop var(--motion-quick) var(--ease-pop);
+}
+
+@keyframes check-pop {
+  from { transform: scale(0.4); }
+  to { transform: scale(1); }
+}
+
+.toast-in {
+  animation: toast-in var(--motion-fast) var(--ease-pop) both;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 倒酒注入：完成全部步骤时，酒杯液面上涨并加深 */
+.glass-pour .glass-liquid-fill {
+  animation: glass-pour 900ms var(--ease-smooth-out) forwards;
+}
+
+@keyframes glass-pour {
+  from {
+    transform: translateY(8px);
+    opacity: 0.32;
+  }
+  to {
+    transform: translateY(-2px);
+    opacity: 0.75;
+  }
+}
+
 .heart-pop {
   animation: heart-pop var(--motion-emphasis, 500ms) var(--ease-pop);
 }
@@ -378,6 +418,8 @@ input:focus-visible {
   .recipe-in .recipe-chunk,
   .qty-pop,
   .heart-pop,
+  .toast-in,
+  .glass-pour .glass-liquid-fill,
   .glass-breathe,
   .idle-glass .glass-liquid-fill {
     animation: none;

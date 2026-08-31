@@ -209,7 +209,7 @@ function DrinkCard({
             title={saved ? `取消收藏 ${c.name}` : `收藏 ${c.name}`}
             className="absolute right-2.5 top-2.5 rounded-full p-1.5 text-subtle opacity-0 transition-opacity hover:text-fg focus-visible:opacity-100 group-hover:opacity-100"
           >
-            <Heart className={cn("size-4", saved && "fill-current text-fg")} />
+            <Heart className={cn("size-4", saved && "heart-pop fill-current text-fg")} />
           </button>
         ) : null}
       </div>
