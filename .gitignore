@@ -1,0 +1,11 @@
+node_modules
+dist
+.output
+.vercel
+.smoke
+artifacts
+screenshots
+*.log
+.env
+.env.local
+.DS_Store
