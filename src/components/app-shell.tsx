@@ -258,15 +258,6 @@ export function AppShell() {
             }
           />
 
-          {rail === "bar" ? (
-            <PantryPanel
-              stock={barStock}
-              onToggle={toggleBarStock}
-              onClear={() => setBarStock([])}
-              readyCount={matched.filter((m) => m.missing.length === 0).length}
-            />
-          ) : null}
-
           {rail === "all" && !deferredQuery ? (
             <button
               type="button"
@@ -309,6 +300,14 @@ export function AppShell() {
               next?.focus();
             }}
           >
+            {rail === "bar" ? (
+              <PantryPanel
+                stock={barStock}
+                onToggle={toggleBarStock}
+                onClear={() => setBarStock([])}
+                readyCount={matched.filter((m) => m.missing.length === 0).length}
+              />
+            ) : null}
             {rail !== "bar" ? (
               <CategoryIntro title={intro.title} en={intro.en} blurb={intro.blurb} />
             ) : null}

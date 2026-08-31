@@ -142,20 +142,6 @@
   padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
 }
 
-/* 吧台材料标签区：超高时内部滚动，避免把下方酒单挤出视口 */
-.pantry-scroll {
-  max-height: 38dvh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding-right: 2px;
-}
-
-@media (min-width: 768px) {
-  .pantry-scroll {
-    max-height: 30dvh;
-  }
-}
-
 @media (min-width: 1024px) {
   .pb-safe {
     padding-bottom: var(--space-6);

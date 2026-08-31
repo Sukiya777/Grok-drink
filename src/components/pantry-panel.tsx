@@ -56,7 +56,7 @@ export function PantryPanel({ stock, onToggle, onClear, readyCount }: Props) {
   }, [filter, set]);
 
   return (
-    <div className="shrink-0 border-b border-line bg-surface/60 px-4 py-4 md:px-6">
+    <div className="border-b border-line bg-surface/60 px-4 py-4 md:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs tracking-mark text-subtle uppercase">My Bar</p>
@@ -89,7 +89,7 @@ export function PantryPanel({ stock, onToggle, onClear, readyCount }: Props) {
         />
       </div>
 
-      <ul className="pantry-scroll mt-3 flex flex-wrap gap-1.5">
+      <ul className="mt-3 flex flex-wrap gap-1.5">
         {shown.map((name) => {
           const on = set.has(name);
           return (
