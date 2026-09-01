@@ -384,11 +384,28 @@ input:focus-visible {
   }
 }
 
-.heart-pop {
-  animation: heart-pop var(--motion-emphasis, 500ms) var(--ease-pop);
+.art-pour {
+  animation: art-pour 900ms var(--ease-smooth-out, ease-out) forwards;
 }
 
-@keyframes heart-pop {
+@keyframes art-pour {
+  0% {
+    transform: scale(1);
+    filter: brightness(1) saturate(1);
+  }
+  35% {
+    transform: scale(1.03);
+    filter: brightness(1.28) saturate(1.15);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1.08) saturate(1.05);
+  }
+}
+
+.heart-pop {
+  animation: heart-pop var(--motion-emphasis, 500ms) var(--ease-pop);
+}@keyframes heart-pop {
   0% { transform: scale(1); }
   40% { transform: scale(1.18); }
   100% { transform: scale(1); }
@@ -420,6 +437,7 @@ input:focus-visible {
   .heart-pop,
   .toast-in,
   .glass-pour .glass-liquid-fill,
+  .art-pour,
   .glass-breathe,
   .idle-glass .glass-liquid-fill {
     animation: none;

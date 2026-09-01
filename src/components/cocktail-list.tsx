@@ -8,6 +8,7 @@ import {
 } from "@/lib/cocktails";
 import { cn } from "@/lib/utils";
 import { GlassMark } from "@/components/glass-mark";
+import { drinkArt } from "@/lib/drink-art";
 
 type Props = {
   cocktails: Cocktail[];
@@ -198,6 +199,17 @@ function DrinkCard({
               <span className="mt-2 block text-xs text-ok">材料齐了</span>
             ) : null}
           </span>
+          {drinkArt(c.id) ? (
+            <img
+              src={drinkArt(c.id)}
+              alt={`${c.name}成品插画`}
+              loading="lazy"
+              decoding="async"
+              width={480}
+              height={480}
+              className="size-16 shrink-0 self-center rounded-lg object-cover ring-1 ring-line md:size-20"
+            />
+          ) : null}
         </button>
 
         {onToggleSave ? (

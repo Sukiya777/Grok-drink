@@ -13,6 +13,7 @@ import {
 } from "@/lib/cocktails";
 import { Button } from "@/components/ui/button";
 import { GlassMark } from "@/components/glass-mark";
+import { drinkArt } from "@/lib/drink-art";
 import { haptic } from "@/lib/haptics";
 import { showToast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
@@ -134,6 +135,7 @@ export function RecipePanel({
   }
 
   const allReady = missing ? missing.length === 0 : null;
+  const art = drinkArt(cocktail.id);
 
   return (
     <article
@@ -211,11 +213,30 @@ export function RecipePanel({
               </p>
             ) : null}
           </div>
-          <GlassMark
-            glass={cocktail.glass}
-            liquid={tint}
-            className={cn("mt-1 h-16 w-12 shrink-0", pour && "glass-pour")}
-          />
+          {art ? (
+            <figure className="shrink-0">
+              <img
+                src={art}
+                alt={`${cocktail.name}成品插画`}
+                width={480}
+                height={480}
+                decoding="async"
+                className={cn(
+                  "size-28 rounded-xl object-cover ring-1 ring-line md:size-36",
+                  pour && "art-pour",
+                )}
+              />
+              <figcaption className="mt-1.5 text-right text-[10px] tracking-wide text-subtle">
+                成品示意
+              </figcaption>
+            </figure>
+          ) : (
+            <GlassMark
+              glass={cocktail.glass}
+              liquid={tint}
+              className={cn("mt-1 h-16 w-12 shrink-0", pour && "glass-pour")}
+            />
+          )}
         </div>
 
         <dl className="recipe-chunk mt-6 grid grid-cols-3 gap-px overflow-hidden rounded-lg bg-line shadow-[var(--shadow-border)]">
