@@ -20,14 +20,14 @@ export const DRINK_ART: Record<string, string> = {
   "new-york-sour": "/images/cocktails/new-york-sour.webp",
   "vieux-carre": "/images/cocktails/vieux-carre.webp",
   "white-russian": "/images/cocktails/white-russian.webp",
-  // 金酒 / 方杯系
+  // 金酒系（已集齐 8/8）
   martini: "/images/cocktails/martini.webp",
   "gin-tonic": "/images/cocktails/gin-tonic.webp",
+  "tom-collins": "/images/cocktails/tom-collins.webp",
   aviation: "/images/cocktails/aviation.webp",
   "french-75": "/images/cocktails/french-75.webp",
   "last-word": "/images/cocktails/last-word.webp",
   "bees-knees": "/images/cocktails/bees-knees.webp",
-  "tom-collins": "/images/cocktails/tom-collins.webp",
   "mint-julep": "/images/cocktails/mint-julep.webp",
   // 伏特加系
   "moscow-mule": "/images/cocktails/moscow-mule.webp",
