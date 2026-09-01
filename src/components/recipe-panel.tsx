@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { GlassMark } from "@/components/glass-mark";
 import { drinkArt } from "@/lib/drink-art";
+import { artZoomHandler } from "@/lib/art-view";
 import { haptic } from "@/lib/haptics";
 import { showToast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
@@ -218,11 +219,13 @@ export function RecipePanel({
               <img
                 src={art}
                 alt={`${cocktail.name}成品插画`}
-                width={480}
-                height={480}
+                title="点击看大图"
+                width={800}
+                height={800}
                 decoding="async"
+                onClick={artZoomHandler(art, `${cocktail.name} ${cocktail.nameEn}`)}
                 className={cn(
-                  "size-28 rounded-xl object-cover ring-1 ring-line md:size-36",
+                  "size-28 cursor-zoom-in rounded-xl object-cover ring-1 ring-line transition-transform duration-200 hover:scale-[1.03] active:scale-95 md:size-36",
                   pour && "art-pour",
                 )}
               />

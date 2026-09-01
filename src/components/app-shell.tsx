@@ -33,6 +33,7 @@ import { categoryCopy } from "@/lib/category-copy";
 import { PantryPanel } from "@/components/pantry-panel";
 import { RecipePanel } from "@/components/recipe-panel";
 import { Toaster } from "@/components/toaster";
+import { ArtLightbox } from "@/components/art-lightbox";
 import { haptic } from "@/lib/haptics";
 import { Toolbar } from "@/components/toolbar";
 import { cn } from "@/lib/utils";
@@ -382,6 +383,7 @@ export function AppShell() {
         )}
       </div>
       <Toaster />
+      <ArtLightbox />
     </div>
   );
 }

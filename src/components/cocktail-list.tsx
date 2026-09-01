@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { GlassMark } from "@/components/glass-mark";
 import { drinkArt } from "@/lib/drink-art";
+import { artZoomHandler } from "@/lib/art-view";
 
 type Props = {
   cocktails: Cocktail[];
@@ -203,11 +204,13 @@ function DrinkCard({
             <img
               src={drinkArt(c.id)}
               alt={`${c.name}成品插画`}
+              title="点击看大图"
               loading="lazy"
               decoding="async"
-              width={480}
-              height={480}
-              className="size-16 shrink-0 self-center rounded-lg object-cover ring-1 ring-line md:size-20"
+              width={800}
+              height={800}
+              onClick={artZoomHandler(drinkArt(c.id)!, `${c.name} ${c.nameEn}`)}
+              className="size-16 shrink-0 self-center cursor-zoom-in rounded-lg object-cover ring-1 ring-line transition-transform duration-200 hover:scale-[1.04] active:scale-95 md:size-20"
             />
           ) : null}
         </button>
