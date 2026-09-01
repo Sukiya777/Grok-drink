@@ -21,6 +21,8 @@ export const DRINK_ART: Record<string, string> = {
   "vieux-carre": "/images/cocktails/vieux-carre.webp",
   "white-russian": "/images/cocktails/white-russian.webp",
   // 金酒 / 方杯系
+  martini: "/images/cocktails/martini.webp",
+  "gin-tonic": "/images/cocktails/gin-tonic.webp",
   "tom-collins": "/images/cocktails/tom-collins.webp",
   "mint-julep": "/images/cocktails/mint-julep.webp",
   // 伏特加系
