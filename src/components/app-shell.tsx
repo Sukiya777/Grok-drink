@@ -263,32 +263,6 @@ export function AppShell() {
             }
           />
 
-          {rail === "all" && !deferredQuery ? (
-            <button
-              type="button"
-              onClick={() => {
-                setRail(featured.category);
-                setSelectedId(featured.id);
-              }}
-              className="pressable cocktail-plate mx-4 mt-3 mb-1 flex items-center justify-between gap-4 rounded-xl p-4 text-left md:mx-5"
-            >
-              <span>
-                <span className="flex items-center gap-1.5 text-xs tracking-mark text-subtle">
-                  <Sparkles className="size-3.5" strokeWidth={1.75} />
-                  今日特调
-                </span>
-                <span className="mt-1 block font-display text-xl text-fg">
-                  {featured.name}
-                </span>
-                <span className="text-xs text-muted">{featured.nameEn}</span>
-              </span>
-              <span className="flex items-center gap-2 text-xs text-subtle">
-                <Wine className="size-3.5" strokeWidth={1.75} />
-                {CATEGORY_BY_ID[featured.category].name}
-              </span>
-            </button>
-          ) : null}
-
           <div
             id="cocktail-scroll"
             ref={listRef}
@@ -312,6 +286,31 @@ export function AppShell() {
                 onClear={() => setBarStock([])}
                 readyCount={matched.filter((m) => m.missing.length === 0).length}
               />
+            ) : null}
+            {rail === "all" && !deferredQuery ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setRail(featured.category);
+                  setSelectedId(featured.id);
+                }}
+                className="pressable cocktail-plate mx-4 mt-3 flex w-[calc(100%-2rem)] items-center justify-between gap-4 rounded-xl p-4 text-left md:mx-5 md:w-[calc(100%-2.5rem)]"
+              >
+                <span>
+                  <span className="flex items-center gap-1.5 text-xs tracking-mark text-subtle">
+                    <Sparkles className="size-3.5" strokeWidth={1.75} />
+                    今日特调
+                  </span>
+                  <span className="mt-1 block font-display text-xl text-fg">
+                    {featured.name}
+                  </span>
+                  <span className="text-xs text-muted">{featured.nameEn}</span>
+                </span>
+                <span className="flex items-center gap-2 text-xs text-subtle">
+                  <Wine className="size-3.5" strokeWidth={1.75} />
+                  {CATEGORY_BY_ID[featured.category].name}
+                </span>
+              </button>
             ) : null}
             {rail !== "bar" ? (
               <CategoryIntro title={intro.title} en={intro.en} blurb={intro.blurb} />
