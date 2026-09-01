@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Check, Copy, Heart, Link2, Minus, Plus } from "lucide-react";
+import { ArrowLeft, Check, Copy, Heart, Link2, Minus, Plus, ZoomIn } from "lucide-react";
 import {
   GLASS_LABEL,
   METHOD_LABEL,
@@ -229,8 +229,16 @@ export function RecipePanel({
                   pour && "art-pour",
                 )}
               />
-              <figcaption className="mt-1.5 text-right text-[10px] tracking-wide text-subtle">
-                成品示意
+              <figcaption>
+                <button
+                  type="button"
+                  onClick={artZoomHandler(art, `${cocktail.name} ${cocktail.nameEn}`)}
+                  aria-label={`放大查看${cocktail.name}成品插画`}
+                  className="pressable mt-1.5 flex w-full items-center justify-end gap-1 text-[10px] tracking-wide text-subtle transition-colors hover:text-muted"
+                >
+                  <ZoomIn className="size-3" strokeWidth={1.75} />
+                  点击看大图
+                </button>
               </figcaption>
             </figure>
           ) : (
