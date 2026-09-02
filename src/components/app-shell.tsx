@@ -224,10 +224,10 @@ export function AppShell() {
       </button>
 
       <aside className="flex shrink-0 flex-col border-b border-line md:w-rail md:border-b-0 md:border-r">
-        <div className="px-4 py-4 md:px-5">
-          <p className="font-display text-2xl leading-none tracking-tight">夜酌</p>
-          <p className="mt-1 text-xs tracking-mark text-subtle">NIGHT POUR</p>
-          <p className="mt-2 text-[10px] uppercase tracking-[0.22em] text-subtle">
+        <div className="px-4 pt-safe pb-4 md:px-5">
+          <p className="font-display text-2xl leading-[36px] tracking-tight">夜酌</p>
+          <p className="text-xs leading-[20px] tracking-mark text-subtle">NIGHT POUR</p>
+          <p className="text-[10px] uppercase leading-[18px] tracking-[0.22em] text-subtle">
             Crafted by Suki
           </p>
         </div>

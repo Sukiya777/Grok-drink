@@ -142,6 +142,19 @@
   padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
 }
 
+/* 侧栏品牌区：基准 20px 为字体度量算出的光学最优（夜酌墨迹距顶 27.5px）；
+   本项目的 --space-5 是 24px，会把顶部推过头，故此处用字面量。
+   全屏（加到主屏）时再加刘海高度。 */
+.pt-safe {
+  padding-top: calc(20px + env(safe-area-inset-top, 0px));
+}
+
+@media (min-width: 768px) {
+  .pt-safe {
+    padding-top: 20px;
+  }
+}
+
 @media (min-width: 1024px) {
   .pb-safe {
     padding-bottom: var(--space-6);
