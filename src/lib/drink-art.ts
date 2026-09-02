@@ -59,6 +59,12 @@ export const DRINK_ART: Record<string, string> = {
   "pisco-sour": "/images/cocktails/pisco-sour.webp",
   "between-the-sheets": "/images/cocktails/between-the-sheets.webp",
   "kir-royale": "/images/cocktails/kir-royale.webp",
+  // 无酒精系
+  "virgin-mojito": "/images/cocktails/virgin-mojito.webp",
+  "shirley-temple": "/images/cocktails/shirley-temple.webp",
+  "citrus-highball": "/images/cocktails/citrus-highball.webp",
+  "cucumber-tonic": "/images/cocktails/cucumber-tonic.webp",
+  "coconut-cooler": "/images/cocktails/coconut-cooler.webp",
 };
 
 export function drinkArt(id: string): string | undefined {
