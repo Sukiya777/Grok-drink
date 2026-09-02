@@ -18,19 +18,53 @@ const MAX_MS = 2600;
 const HOLD_MS = 420;
 const OUT_MS = 380;
 
-// 杯体几何（viewBox 200×240）：老式岩石杯，直壁厚底
-const CUP_TOP = 52;
-const CUP_BOTTOM = 186;
-const CUP_L = 58;
-const CUP_R = 142;
-const BASE_T = 20; // 厚底，液体不侵入
+// 杯体几何（viewBox 200×240）：老式岩石杯——口沿宽、杯底窄，厚底。
+// 单一事实来源：杯壁线条、液体裁剪区、液面高光全部由这几个常量推导，
+// 免得再出现"壁是梯形、液体是长方形"这种两套几何各画各的。
+const RIM_Y = 52; // 口沿
+const FOOT_Y = 170; // 杯内底（厚底的上表面），液体涨到这里为满杯
+const RIM_L = 52;
+const RIM_R = 148;
+const FOOT_L = 70; // 收窄 18：梯形要一眼能看出来（64 时低液位切片几乎等宽，被判"长方形"）
+const FOOT_R = 130;
+const BASE_T = 16; // 厚底厚度
+const WALL = 3; // 液体相对杯壁内缩
+const TOP_Y = RIM_Y + 14; // 八分满：液面停在杯口线下方，留出"没漫出来"的呼吸
+
+/** 液体可升降的总行程 */
+const TRAVEL = FOOT_Y - TOP_Y;
 
 function fillShift(level: number) {
-  // 液位 0..1 → 液体整体向下平移的量（px, viewBox 单位）：
+  // 液位 0..1 → 液体整体向下平移的量（viewBox 单位）：
   // 用 transform 而不是动 y/height —— SVG 几何属性的 CSS transition
   // 在旧版 Safari 不生效，transform 是最稳的那条路。
-  return (CUP_BOTTOM - BASE_T - CUP_TOP) * (1 - Math.min(1, Math.max(0, level)));
+  return TRAVEL * (1 - Math.min(1, Math.max(0, level)));
 }
+
+/** 杯壁中心线（左右各一条，从口沿斜到内底） */
+const WALL_L = `M ${RIM_L} ${RIM_Y} L ${FOOT_L} ${FOOT_Y}`;
+const WALL_R = `M ${RIM_R} ${RIM_Y} L ${FOOT_R} ${FOOT_Y}`;
+
+/**
+ * 杯内液体区 = 沿杯壁水平内缩 WALL 的梯形（底部两个小圆角）。
+ * 关键：左右边界用"同一根杯壁线 + 固定水平偏移"按 y 插值出来，而不是各写各的端点——
+ * 这样任何高度处液体都严格贴着杯壁（若两端点独立给，斜率会和杯壁不平行，
+ * 顶部/底部内缩不一，高液位时液面就会压到杯壁线上）。
+ */
+const LX = (y: number) => RIM_L + WALL + ((y - RIM_Y) / (FOOT_Y - RIM_Y)) * (FOOT_L - RIM_L);
+const RX = (y: number) => RIM_R - WALL + ((y - RIM_Y) / (FOOT_Y - RIM_Y)) * (FOOT_R - RIM_R);
+const n = (v: number) => Math.round(v * 100) / 100;
+const CORNER = 6; // 杯内底圆角
+
+const BOWL = [
+  `M ${n(LX(TOP_Y))} ${TOP_Y}`,
+  `L ${n(LX(FOOT_Y - CORNER))} ${FOOT_Y - CORNER}`,
+  `Q ${n(LX(FOOT_Y))} ${FOOT_Y} ${n(LX(FOOT_Y) + CORNER)} ${FOOT_Y}`,
+  `L ${n(RX(FOOT_Y) - CORNER)} ${FOOT_Y}`,
+  `Q ${n(RX(FOOT_Y))} ${FOOT_Y} ${n(RX(FOOT_Y - CORNER))} ${FOOT_Y - CORNER}`,
+  `L ${n(RX(TOP_Y))} ${TOP_Y}`,
+  "Z",
+].join(" ");
 
 export function BrandSplash() {
   const [enabled] = useState(() => {
@@ -127,7 +161,7 @@ export function BrandSplash() {
       <svg viewBox="0 0 200 240" className="h-44 w-40" aria-hidden="true">
         <defs>
           <clipPath id="cup-bowl">
-            <rect x={CUP_L + 5} y={CUP_TOP} width={CUP_R - CUP_L - 10} height={CUP_BOTTOM - CUP_TOP - BASE_T} rx={6} />
+            <path d={BOWL} />
           </clipPath>
           <linearGradient id="pour-liquid" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="#d29c89" /> {/* 落日椰林：液面偏亮的橘粉 */}
@@ -135,7 +169,8 @@ export function BrandSplash() {
           </linearGradient>
         </defs>
         {/* 外层负责裁剪（不位移），内层负责位移——
-            若把 transform 放在带 clipPath 的 g 上，裁剪区会跟着液面一起沉出去 */}
+            若把 transform 放在带 clipPath 的 g 上，裁剪区会跟着液面一起沉出去。
+            内层画一张足够大的液体+一条液面高光，靠梯形裁剪自然获得"上宽下窄"。 */}
         <g clipPath="url(#cup-bowl)">
           <g
             style={{
@@ -144,22 +179,35 @@ export function BrandSplash() {
             }}
           >
             <rect
-              x={CUP_L}
-              y={CUP_TOP}
-              width={CUP_R - CUP_L}
-              height={CUP_BOTTOM - BASE_T - CUP_TOP}
+              x={RIM_L - 20}
+              y={TOP_Y}
+              width={RIM_R - RIM_L + 40}
+              height={TRAVEL + BASE_T + 40}
               fill="url(#pour-liquid)"
               opacity="0.85"
             />
-            {/* 弯月面：更亮的一条液面高光 */}
-            <rect x={CUP_L} y={CUP_TOP} width={CUP_R - CUP_L} height={3} fill="#e8ddd0" opacity="0.9" />
+            {/* 弯月面：更亮的一条液面高光（宽度由裁剪区决定，涨到哪就有多宽） */}
+            <rect
+              x={RIM_L - 20}
+              y={TOP_Y}
+              width={RIM_R - RIM_L + 40}
+              height={3}
+              fill="#e8ddd0"
+              opacity="0.9"
+            />
           </g>
         </g>
-        {/* 杯体线条 */}
+        {/* 杯体线条：口沿 + 两条斜壁 + 厚底 */}
         <g fill="none" stroke="#e8ddd0" strokeWidth="2.5" strokeLinecap="round">
-          <path d={`M ${CUP_L - 3} ${CUP_TOP} L ${CUP_L + 3} ${CUP_BOTTOM - BASE_T} Q ${CUP_L + 4} ${CUP_BOTTOM - 4} ${CUP_L + 14} ${CUP_BOTTOM - 4} L ${CUP_R - 14} ${CUP_BOTTOM - 4} Q ${CUP_R - 4} ${CUP_BOTTOM - 4} ${CUP_R - 3} ${CUP_BOTTOM - BASE_T} L ${CUP_R + 3} ${CUP_TOP}`} opacity="0.9" />
-          <path d={`M ${CUP_L - 3} ${CUP_TOP} L ${CUP_R + 3} ${CUP_TOP}`} opacity="0.9" />
-          <path d={`M ${CUP_L + 8} ${CUP_BOTTOM} L ${CUP_R - 8} ${CUP_BOTTOM}`} opacity="0.5" />
+          <path d={`M ${RIM_L} ${RIM_Y} L ${RIM_R} ${RIM_Y}`} opacity="0.9" />
+          <path d={WALL_L} opacity="0.9" />
+          <path d={WALL_R} opacity="0.9" />
+          <path d={`M ${FOOT_L - 2} ${FOOT_Y + BASE_T} L ${FOOT_R + 2} ${FOOT_Y + BASE_T}`} opacity="0.9" />
+          <path
+            d={`M ${FOOT_L + 2} ${FOOT_Y} L ${FOOT_R - 2} ${FOOT_Y}`}
+            opacity="0.45"
+            strokeWidth="2"
+          />
         </g>
       </svg>
       <div className="mt-5 flex flex-col items-center">
