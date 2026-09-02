@@ -20,7 +20,7 @@ export const DRINK_ART: Record<string, string> = {
   "new-york-sour": "/images/cocktails/new-york-sour.webp",
   "vieux-carre": "/images/cocktails/vieux-carre.webp",
   "white-russian": "/images/cocktails/white-russian.webp",
-  // 金酒系（已集齐 8/8）
+  // 金酒系（已集齐 9/9）
   martini: "/images/cocktails/martini.webp",
   "gin-tonic": "/images/cocktails/gin-tonic.webp",
   "tom-collins": "/images/cocktails/tom-collins.webp",
@@ -28,6 +28,7 @@ export const DRINK_ART: Record<string, string> = {
   "french-75": "/images/cocktails/french-75.webp",
   "last-word": "/images/cocktails/last-word.webp",
   "bees-knees": "/images/cocktails/bees-knees.webp",
+  "sunset-grove": "/images/cocktails/sunset-grove.webp",
   "mint-julep": "/images/cocktails/mint-julep.webp",
   // 伏特加系（已集齐）
   "moscow-mule": "/images/cocktails/moscow-mule.webp",

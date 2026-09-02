@@ -234,7 +234,7 @@ export function RecipePanel({
                   type="button"
                   onClick={artZoomHandler(art, `${cocktail.name} ${cocktail.nameEn}`)}
                   aria-label={`放大查看${cocktail.name}成品插画`}
-                  className="pressable mt-1.5 flex w-full items-center justify-end gap-1 text-[10px] tracking-wide text-subtle transition-colors hover:text-muted"
+                  className="pressable mt-1.5 flex w-full items-center justify-center gap-1 text-[10px] tracking-wide text-subtle transition-colors hover:text-muted"
                 >
                   <ZoomIn className="size-3" strokeWidth={1.75} />
                   点击看大图
