@@ -36,6 +36,10 @@ export const DRINK_ART: Record<string, string> = {
   "vodka-martini": "/images/cocktails/vodka-martini.webp",
   // 朗姆系
   "cuba-libre": "/images/cocktails/cuba-libre.webp",
+  daiquiri: "/images/cocktails/daiquiri.webp",
+  "pina-colada": "/images/cocktails/pina-colada.webp",
+  "mai-tai": "/images/cocktails/mai-tai.webp",
+  "dark-n-stormy": "/images/cocktails/dark-n-stormy.webp",
   // 特基拉系
   margarita: "/images/cocktails/margarita.webp",
   "tommys-margarita": "/images/cocktails/tommys-margarita.webp",
