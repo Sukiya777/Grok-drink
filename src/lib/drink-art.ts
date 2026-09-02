@@ -29,8 +29,11 @@ export const DRINK_ART: Record<string, string> = {
   "last-word": "/images/cocktails/last-word.webp",
   "bees-knees": "/images/cocktails/bees-knees.webp",
   "mint-julep": "/images/cocktails/mint-julep.webp",
-  // 伏特加系
+  // 伏特加系（已集齐）
   "moscow-mule": "/images/cocktails/moscow-mule.webp",
+  "espresso-martini": "/images/cocktails/espresso-martini.webp",
+  "bloody-mary": "/images/cocktails/bloody-mary.webp",
+  "vodka-martini": "/images/cocktails/vodka-martini.webp",
   // 朗姆系
   "cuba-libre": "/images/cocktails/cuba-libre.webp",
   // 特基拉系
