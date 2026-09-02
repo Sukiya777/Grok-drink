@@ -46,11 +46,19 @@ export const DRINK_ART: Record<string, string> = {
   paloma: "/images/cocktails/paloma.webp",
   "tequila-sunrise": "/images/cocktails/tequila-sunrise.webp",
   hemingway: "/images/cocktails/hemingway.webp",
+  "ranch-water": "/images/cocktails/ranch-water.webp",
+  "el-diablo": "/images/cocktails/el-diablo.webp",
   // 利口与开胃
   "aperol-spritz": "/images/cocktails/aperol-spritz.webp",
   americano: "/images/cocktails/americano.webp",
   sbagliato: "/images/cocktails/sbagliato.webp",
   "amaretto-sour": "/images/cocktails/amaretto-sour.webp",
+  // 干邑 / 白兰地系
+  sidecar: "/images/cocktails/sidecar.webp",
+  "brandy-alexander": "/images/cocktails/brandy-alexander.webp",
+  "pisco-sour": "/images/cocktails/pisco-sour.webp",
+  "between-the-sheets": "/images/cocktails/between-the-sheets.webp",
+  "kir-royale": "/images/cocktails/kir-royale.webp",
 };
 
 export function drinkArt(id: string): string | undefined {
