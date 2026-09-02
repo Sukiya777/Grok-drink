@@ -10,6 +10,7 @@ import { Sparkles, Wine } from "lucide-react";
 import {
   CATEGORY_BY_ID,
   COCKTAIL_BY_ID,
+  barStockHas,
   cocktailsIn,
   matchByPantry,
   searchCocktails,
@@ -80,8 +81,16 @@ export function AppShell() {
   const featured = useMemo(() => todaysCocktail(), []);
   const deferredQuery = useDeferredValue(query);
 
-  // 侧栏「我的吧台」要常驻显示可调杯数，所以不限当前视图
-  const matched = useMemo(() => matchByPantry(barStock), [barStock]);
+  // 侧栏「我的吧台」要常驻显示可调杯数，所以不限当前视图。
+  // 沾边口径：至少用到 1 样已有材料的酒才算"你吧台上的下一步"；
+  // 零交集的（比如只有朗姆时的干马天尼）不配出现在"只缺两样"里。
+  // 例外：库存全空时不过滤，否则新用户一进吧台就是空的。
+  const matched = useMemo(() => {
+    const all = matchByPantry(barStock);
+    return barStock.length === 0
+      ? all
+      : all.filter((m) => m.cocktail.ingredients.some((i) => barStockHas(barStock, i.name)));
+  }, [barStock]);
 
   const list = useMemo(() => {
     let pool: Cocktail[];

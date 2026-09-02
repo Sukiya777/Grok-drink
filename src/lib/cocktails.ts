@@ -1636,6 +1636,15 @@ export function matchByPantry(
     .sort((a, b) => a.missing.length - b.missing.length);
 }
 
+/**
+ * 这瓶库存是否用于某款配料（别名归一后比对）。
+ * 与 matchByPantry 共用 normalizeIngredient，避免"沾边判断"和"缺口计算"两套口径。
+ */
+export function barStockHas(stock: string[], ingredient: string): boolean {
+  const want = normalizeIngredient(ingredient);
+  return stock.some((s) => normalizeIngredient(s) === want);
+}
+
 export type SortId = "menu" | "abv-desc" | "abv-asc" | "sweet-desc" | "time-asc";
 
 export const SORT_LABEL: Record<SortId, string> = {
