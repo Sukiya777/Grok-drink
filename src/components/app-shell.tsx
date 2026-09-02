@@ -227,6 +227,9 @@ export function AppShell() {
         <div className="px-4 py-4 md:px-5">
           <p className="font-display text-2xl leading-none tracking-tight">夜酌</p>
           <p className="mt-1 text-xs tracking-mark text-subtle">NIGHT POUR</p>
+          <p className="mt-2 text-[10px] uppercase tracking-[0.22em] text-subtle">
+            Crafted by Suki
+          </p>
         </div>
         <CategoryRail
           active={rail}
