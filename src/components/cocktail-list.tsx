@@ -8,6 +8,7 @@ import {
 } from "@/lib/cocktails";
 import { cn } from "@/lib/utils";
 import { GlassMark } from "@/components/glass-mark";
+import { ArtImg } from "@/components/art-img";
 import { drinkArt } from "@/lib/drink-art";
 import { artZoomHandler } from "@/lib/art-view";
 
@@ -59,6 +60,7 @@ export function CocktailList({
             key={c.id}
             c={c}
             index={i}
+            priority={i < 8}
             selected={c.id === selectedId}
             saved={favorites.includes(c.id)}
             onSelect={onSelect}
@@ -119,6 +121,7 @@ function groupTitle(missing: number) {
 function DrinkCard({
   c,
   index,
+  priority,
   selected,
   saved,
   onSelect,
@@ -128,6 +131,8 @@ function DrinkCard({
 }: {
   c: Cocktail;
   index?: number;
+  /** 首屏可见的前几张卡片：插画不懒加载、占位色更快被图替换 */
+  priority?: boolean;
   selected: boolean;
   saved: boolean;
   onSelect: (id: string) => void;
@@ -201,16 +206,15 @@ function DrinkCard({
             ) : null}
           </span>
           {drinkArt(c.id) ? (
-            <img
-              src={drinkArt(c.id)}
+            <ArtImg
+              id={c.id}
+              src={drinkArt(c.id)!}
               alt={`${c.name}成品插画`}
               title="点击看大图"
-              loading="lazy"
-              decoding="async"
-              width={800}
-              height={800}
+              priority={priority}
               onClick={artZoomHandler(drinkArt(c.id)!, `${c.name} ${c.nameEn}`)}
-              className="size-16 shrink-0 self-center cursor-zoom-in rounded-lg object-cover ring-1 ring-line transition-transform duration-200 hover:scale-[1.04] active:scale-95 md:size-20"
+              className="size-16 shrink-0 self-center rounded-lg ring-1 ring-line md:size-20"
+              imgClassName="cursor-zoom-in transition-transform duration-200 hover:scale-[1.04] active:scale-95"
             />
           ) : null}
         </button>

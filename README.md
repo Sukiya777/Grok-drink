@@ -51,14 +51,23 @@ src/
     recipe-panel.tsx  配方详情：份量、盎司/ml、步骤打勾、复制
     pantry-panel.tsx  材料勾选面板
     glass-mark.tsx    杯型 SVG，酒液按大类着色
+    brand-splash.tsx  开屏「倒酒」：液位=插画真实预加载进度
+    art-img.tsx       插画渐进显影：酒色占位→图淡入（见 lib/art-veil.ts）
   lib/
     cocktails.ts      全部酒谱与派生逻辑（改配方改这里）
+    drink-art.ts      51 杯成品插画路径注册表（新增酒配图改这里）
+    art-veil.ts       每杯酒液主色表（scripts/gen-art-veil.py 生成，勿手改）
     category-copy.ts  各视图的标题与说明文案
     favorites.ts      localStorage：收藏 / 吧台库存 / 份量与单位
   styles.css          设计 token 与动效
 scripts/
   verify-data.mjs     酒谱数据自检（build 前自动跑）
+  gen-art-veil.py     从插画反推 veil 色表（需 Pillow）
+  gen-pwa-icons.py    重生成 public/icons 四件套
 public/               分享图、图标
+  sw.js               Service Worker：预缓存壳+51图；改图后把 CACHE 版本号尾号+1
+  manifest.webmanifest PWA 清单
+  icons/              PWA 图标（192/512/maskable/apple-touch）
 ```
 
 单页应用没有 `src/routes/`：视图状态放在 URL hash（`#/<大类>/<酒>`，如 `#/gin/negroni`），
@@ -86,4 +95,6 @@ public/               分享图、图标
 - 「我的吧台」勾选家里有的材料，按「最多缺 N 样」筛酒
 - 详情页可切 ml / oz（按 ¼ oz 刻度取整），份量 1~6 杯
 - 步骤序号可点击打勾，方便边做边对进度
-- 尊重 `prefers-reduced-motion`：系统开启减弱动效后自动关闭入场动画
+- 尊重 `prefers-reduced-motion`：系统开启减弱动效后自动关闭入场动画与开屏倒酒
+- 冷启动会播一次「倒酒」开屏（每会话一次，点按任意处跳过），它同时在预加载 51 张插画；
+  第二次打开起由 Service Worker 直接命中缓存，秒进

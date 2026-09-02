@@ -13,6 +13,7 @@ import {
 } from "@/lib/cocktails";
 import { Button } from "@/components/ui/button";
 import { GlassMark } from "@/components/glass-mark";
+import { ArtImg } from "@/components/art-img";
 import { drinkArt } from "@/lib/drink-art";
 import { artZoomHandler } from "@/lib/art-view";
 import { haptic } from "@/lib/haptics";
@@ -216,17 +217,17 @@ export function RecipePanel({
           </div>
           {art ? (
             <figure className="shrink-0">
-              <img
+              <ArtImg
+                key={art}
+                id={cocktail.id}
                 src={art}
                 alt={`${cocktail.name}成品插画`}
                 title="点击看大图"
-                width={800}
-                height={800}
-                decoding="async"
                 onClick={artZoomHandler(art, `${cocktail.name} ${cocktail.nameEn}`)}
-                className={cn(
-                  "size-28 cursor-zoom-in rounded-xl object-cover ring-1 ring-line transition-transform duration-200 hover:scale-[1.03] active:scale-95 md:size-36",
-                  pour && "art-pour",
+                className="size-28 rounded-xl ring-1 ring-line md:size-36"
+                imgClassName={cn(
+                  "cursor-zoom-in transition-transform duration-200 hover:scale-[1.03] active:scale-95",
+                  pour && "art-pour", // 倒酒庆祝动画保持在 img 上（与占位容器解耦）
                 )}
               />
               <figcaption>

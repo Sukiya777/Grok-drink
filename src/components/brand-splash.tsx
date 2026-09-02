@@ -1,167 +1,171 @@
-import { useEffect, useState, type CSSProperties } from "react";
-import { BRAND_STROKES, type Stroke } from "@/lib/brand-strokes";
+import { useEffect, useRef, useState } from "react";
+import { DRINK_ART } from "@/lib/drink-art";
 
 /**
- * 开屏运笔动画：深墨底上「夜酌」按笔顺逐笔写出（stroke-dashoffset，
- * 时序按弧长分配、纯 CSS 驱动），写毕与正式版衬线字交叉替换，
- * 副标与落款依次淡入，整层淡出后卸载。
- * 每会话首开展示一次；点按任意处跳过；prefers-reduced-motion 直接不播。
+ * 开屏「倒酒」：岩石杯线条，杯中液位 = 51 张插画的真实预加载进度。
+ * 用户看到的等待是诚实的——酒涨得越实说明缓存得越多；网络快则一秒满杯，
+ * 慢也有 2.6s 封顶自动退场，绝不卡人。满杯后液面轻晃一下，整层淡出。
+ * 每会话只播一次；点按任意处跳过；prefers-reduced-motion 不播。
+ *
+ * 沿革：最初做的是"笔顺运笔写夜酌"，但骨架(细线)与成品(衬线)书体方言不通、
+ * 墨量差 13 倍，交叉淡入形同换字，视觉割裂，故整体退役换成与本品类同语言的倒酒。
  */
 
-/** 运笔速度（路径单位/毫秒），两字共用，同一支"笔"。
- * 时长主要由弧长决定，这样点（短）与撇捺（长）才有书法的呼吸感；
- * 若把 MIN_STROKE 调得接近平均笔长，所有笔会被拉成等长，运笔味就没了。 */
-const SPEED = 5.5;
-/** 笔与笔的起笔间隔 */
-const GAP = 40;
-/** 最短单笔时长，仅防极短点笔一闪而过 */
-const MIN_STROKE = 60;
-/** 夜→酌 之间的换气停顿 */
-const CHAR_GAP = 100;
-/** 收笔到换正式字 */
-const SETTLE = 260;
-/** 正式字淡入时长 */
-const FADE = 300;
-/** 副标 / 落款 的错峰 */
-const STAGGER = 180;
-/** 落款出现到开始退场 的停留 */
-const HOLD = 420;
-/** 整层淡出时长 */
+const ARTS = Object.values(DRINK_ART);
+/** 封顶时长：到点无论倒到哪都退场（SW 已缓存时进度会瞬间拉满，更早走） */
+const MAX_MS = 2600;
+/** 满杯后的庆祝停留 */
+const HOLD_MS = 420;
 const OUT_MS = 380;
 
-function timeline(strokes: { d: string; len: number }[]) {
-  let t = 0;
-  return strokes.map((s) => {
-    const dur = Math.max(MIN_STROKE, s.len / SPEED);
-    const delay = t;
-    t = delay + dur + GAP;
-    return { ...s, dur, delay };
-  });
-}
+// 杯体几何（viewBox 200×240）：老式岩石杯，直壁厚底
+const CUP_TOP = 52;
+const CUP_BOTTOM = 186;
+const CUP_L = 58;
+const CUP_R = 142;
+const BASE_T = 20; // 厚底，液体不侵入
 
-const YE = timeline(BRAND_STROKES["夜"].strokes);
-const NIGHT_END = YE[YE.length - 1].delay + YE[YE.length - 1].dur + GAP;
-const ZHUO_START = NIGHT_END + CHAR_GAP;
-const ZH = timeline(BRAND_STROKES["酌"].strokes);
-const WRITE_END = ZHUO_START + ZH[ZH.length - 1].delay + ZH[ZH.length - 1].dur + GAP;
-
-const T_SWAP = WRITE_END + SETTLE;
-const T_SUB = T_SWAP + STAGGER;
-const T_MARK = T_SUB + STAGGER;
-const T_OUT = T_MARK + HOLD;
-
-const INK = "#e8ddd0"; // 与 --color-accent 同值：全站同一支墨
-
-function BrushChar({
-  char,
-  data,
-  start,
-  swap,
-}: {
-  char: string;
-  data: { viewBox: string; sw: number; strokes: Stroke[] };
-  start: number;
-  swap: boolean;
-}) {
-  const tl = timeline(data.strokes);
-  return (
-    <div className="relative h-[104px] w-[104px] shrink-0">
-      <svg
-        viewBox={data.viewBox}
-        className="absolute inset-0 h-full w-full"
-        aria-hidden="true"
-        style={{ opacity: swap ? 0 : 1, transition: `opacity ${FADE}ms ease` }}
-      >
-        {tl.map((s, i) => (
-          <path
-            key={i}
-            d={s.d}
-            fill="none"
-            stroke={INK}
-            strokeWidth={data.sw}
-            strokeLinecap="round"
-            className="splash-stroke"
-            style={
-              {
-                strokeDasharray: s.len,
-                strokeDashoffset: s.len,
-                "--dur": `${Math.round(s.dur)}ms`,
-                animationDelay: `${Math.round(start + s.delay)}ms`,
-              } as CSSProperties
-            }
-          />
-        ))}
-      </svg>
-      <span
-        className="font-display absolute inset-0 flex items-center justify-center text-[86px] leading-[104px]"
-        style={{ opacity: swap ? 1 : 0, transition: `opacity ${FADE}ms ease` }}
-      >
-        {char}
-      </span>
-    </div>
-  );
-}
-
-function splashDisabled(): boolean {
-  try {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return true;
-    return sessionStorage.getItem("np-splash-shown") === "1";
-  } catch {
-    return true; // 隐私模式等取不到时宁可不打扰
-  }
+function fillShift(level: number) {
+  // 液位 0..1 → 液体整体向下平移的量（px, viewBox 单位）：
+  // 用 transform 而不是动 y/height —— SVG 几何属性的 CSS transition
+  // 在旧版 Safari 不生效，transform 是最稳的那条路。
+  return (CUP_BOTTOM - BASE_T - CUP_TOP) * (1 - Math.min(1, Math.max(0, level)));
 }
 
 export function BrandSplash() {
-  const [enabled] = useState(splashDisabled);
-  const [phase, setPhase] = useState(0);
+  const [enabled] = useState(() => {
+    try {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return true;
+      return sessionStorage.getItem("np-splash-shown") === "1";
+    } catch {
+      return true; // 环境取不到能力时，宁可不打扰
+    }
+  });
+  const [level, setLevel] = useState(0);
+  const [leaving, setLeaving] = useState(false);
+  const [gone, setGone] = useState(false);
+  const doneRef = useRef(false);
 
   useEffect(() => {
     if (enabled) return;
     try {
       sessionStorage.setItem("np-splash-shown", "1");
     } catch {
-      /* 存不了就不去管，本次照样播 */
+      /* 存不了就算了，本次照播 */
     }
-    const timers = [
-      setTimeout(() => setPhase(1), T_SWAP),
-      setTimeout(() => setPhase(2), T_SUB),
-      setTimeout(() => setPhase(3), T_MARK),
-      setTimeout(() => setPhase(4), T_OUT),
-      setTimeout(() => setPhase(5), T_OUT + OUT_MS),
-    ];
-    return () => timers.forEach(clearTimeout);
+
+    let loaded = 0;
+    // 双阈值进度：60% 权重给"首屏级"的前 12 张，40% 给全量——
+    // 前几张到位时酒已大半场，避免"一直不见涨、最后猛满杯"的观感。
+    const FIRST = ARTS.slice(0, 12);
+    const rest = ARTS.slice(12);
+    let firstDone = 0;
+    const tick = () => {
+      loaded += 1;
+      const fp = Math.min(1, firstDone / FIRST.length);
+      const ap = loaded / ARTS.length;
+      setLevel(Math.min(1, fp * 0.6 + ap * 0.4));
+    };
+    for (const src of FIRST) {
+      const im = new Image();
+      im.onload = () => {
+        firstDone += 1;
+        tick();
+      };
+      im.onerror = tick;
+      im.src = src;
+    }
+    for (const src of rest) {
+      const im = new Image();
+      im.onload = tick;
+      im.onerror = tick;
+      im.src = src;
+    }
+
+    const finish = () => {
+      if (doneRef.current) return;
+      doneRef.current = true;
+      setLevel(1);
+      setLeaving(true);
+      setTimeout(() => setGone(true), OUT_MS);
+    };
+    const cap = setTimeout(finish, MAX_MS);
+    // 进度满杯后也走（给庆祝停留留时间）
+    const watch = setInterval(() => {
+      if (loaded >= ARTS.length) {
+        clearInterval(watch);
+        setTimeout(finish, HOLD_MS);
+      }
+    }, 80);
+    return () => {
+      clearTimeout(cap);
+      clearInterval(watch);
+    };
   }, [enabled]);
 
-  if (enabled || phase >= 5) return null;
+  if (enabled || gone) return null;
 
-  const fade = (at: number): CSSProperties => ({
-    opacity: phase >= at ? 1 : 0,
-    transform: phase >= at ? "none" : "translateY(4px)",
-    transition: "opacity 300ms var(--ease-smooth-out), transform 300ms var(--ease-smooth-out)",
-  });
-
+  const shift = fillShift(level);
   return (
     <div
       role="presentation"
-      onClick={() => setPhase(5)}
+      onClick={() => {
+        if (!doneRef.current) {
+          doneRef.current = true;
+          setLevel(1);
+          setLeaving(true);
+          setTimeout(() => setGone(true), OUT_MS);
+        }
+      }}
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-bg"
+      data-splash="pour"
       style={{
-        opacity: phase >= 4 ? 0 : 1,
+        opacity: leaving ? 0 : 1,
         transition: `opacity ${OUT_MS}ms ease`,
       }}
     >
-      <div className="flex items-center gap-3 text-fg">
-        <BrushChar char="夜" data={BRAND_STROKES["夜"]} start={0} swap={phase >= 1} />
-        <BrushChar char="酌" data={BRAND_STROKES["酌"]} start={ZHUO_START} swap={phase >= 1} />
-      </div>
-      <div className="mt-3 flex flex-col items-center">
-        <p className="text-xs leading-[20px] tracking-mark text-subtle" style={fade(2)}>
-          NIGHT POUR
-        </p>
-        <p
-          className="text-[10px] uppercase leading-[18px] tracking-[0.22em] text-subtle"
-          style={fade(3)}
-        >
+      <svg viewBox="0 0 200 240" className="h-44 w-40" aria-hidden="true">
+        <defs>
+          <clipPath id="cup-bowl">
+            <rect x={CUP_L + 5} y={CUP_TOP} width={CUP_R - CUP_L - 10} height={CUP_BOTTOM - CUP_TOP - BASE_T} rx={6} />
+          </clipPath>
+          <linearGradient id="pour-liquid" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#d29c89" /> {/* 落日椰林：液面偏亮的橘粉 */}
+            <stop offset="1" stopColor="#975137" /> {/* 尼格罗尼：杯底沉琥珀 */}
+          </linearGradient>
+        </defs>
+        {/* 外层负责裁剪（不位移），内层负责位移——
+            若把 transform 放在带 clipPath 的 g 上，裁剪区会跟着液面一起沉出去 */}
+        <g clipPath="url(#cup-bowl)">
+          <g
+            style={{
+              transform: `translateY(${shift}px)`,
+              transition: "transform 260ms var(--ease-smooth-out)",
+            }}
+          >
+            <rect
+              x={CUP_L}
+              y={CUP_TOP}
+              width={CUP_R - CUP_L}
+              height={CUP_BOTTOM - BASE_T - CUP_TOP}
+              fill="url(#pour-liquid)"
+              opacity="0.85"
+            />
+            {/* 弯月面：更亮的一条液面高光 */}
+            <rect x={CUP_L} y={CUP_TOP} width={CUP_R - CUP_L} height={3} fill="#e8ddd0" opacity="0.9" />
+          </g>
+        </g>
+        {/* 杯体线条 */}
+        <g fill="none" stroke="#e8ddd0" strokeWidth="2.5" strokeLinecap="round">
+          <path d={`M ${CUP_L - 3} ${CUP_TOP} L ${CUP_L + 3} ${CUP_BOTTOM - BASE_T} Q ${CUP_L + 4} ${CUP_BOTTOM - 4} ${CUP_L + 14} ${CUP_BOTTOM - 4} L ${CUP_R - 14} ${CUP_BOTTOM - 4} Q ${CUP_R - 4} ${CUP_BOTTOM - 4} ${CUP_R - 3} ${CUP_BOTTOM - BASE_T} L ${CUP_R + 3} ${CUP_TOP}`} opacity="0.9" />
+          <path d={`M ${CUP_L - 3} ${CUP_TOP} L ${CUP_R + 3} ${CUP_TOP}`} opacity="0.9" />
+          <path d={`M ${CUP_L + 8} ${CUP_BOTTOM} L ${CUP_R - 8} ${CUP_BOTTOM}`} opacity="0.5" />
+        </g>
+      </svg>
+      <div className="mt-5 flex flex-col items-center">
+        <p className="font-display text-2xl leading-[36px] tracking-tight text-fg">夜酌</p>
+        <p className="text-xs leading-[20px] tracking-mark text-subtle">NIGHT POUR</p>
+        <p className="text-[10px] uppercase leading-[18px] tracking-[0.22em] text-subtle">
           Crafted by Suki
         </p>
       </div>

@@ -1,0 +1,23 @@
+{
+  "name": "夜酌 Night Pour · 鸡尾酒手册",
+  "short_name": "夜酌",
+  "description": "按基酒大类查阅经典鸡尾酒：材料精确到毫升，步骤只保留手法。",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c0b0a",
+  "theme_color": "#0c0b0a",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
